@@ -63,3 +63,23 @@ def mixture_density(comp_list, mol_fraction, T, P, data_dict):
     rho = (P*MM_mix)/(R*T)
 
     return rho
+
+def mixture_viscosity(mu_list, MM_list, molar_fraction):
+
+    # calculates the vapor viscosity of a ideal gas misture
+
+    # input: list of viscosities, list of molar masses, list of molar fraction
+    # output: the mixture vapor viscosity
+
+    # calculates the matrix of phi_ij
+    phi_mix = 0
+    for i in range(len(mu_list)):
+        phi_j = []
+        for j in range(len(mu_list)):
+            phi_j.append(molar_fraction[j]*(((1+np.sqrt(mu_list[i]/mu_list[j])*((MM_list[j]/MM_list[i])**(1/4)))**2)/\
+                ((4/np.sqrt(2))*np.sqrt(1+(MM_list[i]/MM_list[j])))))
+        
+        phi_ij = np.sum(phi_j)
+        phi_mix += (molar_fraction[i]*mu_list[i])/phi_ij
+    
+    return phi_mix
