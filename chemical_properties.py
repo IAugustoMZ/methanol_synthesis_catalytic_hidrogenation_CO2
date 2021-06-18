@@ -46,8 +46,11 @@ def mixture_density(comp_list, mol_fraction, T, P, data_dict):
     # calculates the ideal gas mixture density
 
     # input: list of mixture components, list of each component mol fraction (same order)
-    #        temperature (K), pressure (Pa), dictionary of physical and chemical properties
+    #        temperature (K), pressure (bar), dictionary of physical and chemical properties
     # output: the ideal gas mixture (kg/m³)
+
+    # convert P from bar to Pa
+    P*=100000
 
     # extract molar mass of each component and convert to kg/mol
     MM_list = []

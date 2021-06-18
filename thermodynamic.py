@@ -9,12 +9,13 @@ prog_din = {}            # hash table dictionary to store already calculated int
 
 def integrate_cp(component, T_list, therm_func, prop_dict):
 
-    # calculates the integration of heat capacity expression for a specific component
-    # using the Simpson's composite rule
+    """calculates the integration of heat capacity expression for a specific component
+    using the Simpson's composite rule
 
-    # inputs: symbol of component, list with initital and end limits of temperature range
-    #         desired thermodynamic function ('h' for enthalpy or 's' for entropy)
-    #         dictionary containing the correlations coefficients for heat capacity expression
+    inputs: symbol of component, list with initital and end limits of temperature range
+             desired thermodynamic function ('h' for enthalpy or 's' for entropy)
+             dictionary containing the correlations coefficients for heat capacity expression
+    """
 
     # dynamic programming approach to faster computations
     global prog_din
@@ -70,11 +71,12 @@ def integrate_cp(component, T_list, therm_func, prop_dict):
 
 def calculate_K_and_Hr(comp_list, stoic_list, T, prop_dict):
 
-    # calculates the chemical equilibrium reaction and the heat of reaction at temperature of reaction
+    """calculates the chemical equilibrium reaction and the heat of reaction at temperature of reaction
 
-    # inputs: list of components, list of stoichiometric coefficients, temperature of reaction
-    #         dictionary containing the heat capacity correlation coefficients
-    # output: chemical equilibrium constant (adm.) and enthalpy of reaction at desired temperature (J/mol)
+    inputs: list of components, list of stoichiometric coefficients, temperature of reaction
+             dictionary containing the heat capacity correlation coefficients
+     output: chemical equilibrium constant (adm.) and enthalpy of reaction at desired temperature (J/mol)
+     """
 
     # global variables
     global T_std
