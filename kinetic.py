@@ -53,7 +53,7 @@ def adsorption_K(T, comp_dict):
         # extract the reference equilibrium constants and the variation of
         # enthaply due to adsorption
         Kref = comp_dict['Kref_ads'][comp]
-        deltaHads = comp_dict['deltaHads'][comp]
+        deltaHads = comp_dict['deltaHads'][comp]*1000
 
         # calculate the corrected equilibrium constant
         ads_K[comp] = Kref*np.exp((deltaHads/R)*((1/T_ref)-(1/T)))
@@ -79,6 +79,9 @@ def reaction_rates(T, P, F_dict, initial_cond, comp_dict, kinetic_dict, single =
     for comp in F_dict:
         Ft += F_dict[comp]
 
+    # convert input P to Pa
+    P *= 100000
+
     # calculate the correction to volumetric flow rate
     v0 = initial_cond[0]             # initial volumetric flow rate (m3/s)
     T0 = initial_cond[1]             # initial temperature (K)
@@ -92,6 +95,7 @@ def reaction_rates(T, P, F_dict, initial_cond, comp_dict, kinetic_dict, single =
 
     for comp in F_dict:
         Pi[comp] = (F_dict[comp]*R*T)/v
+        Pi[comp] /= 100000 # convert from Pa to bar
 
     # calculate reaction constants
     k_list = reaction_constant(T, kinetic_info=kinetic_dict)
