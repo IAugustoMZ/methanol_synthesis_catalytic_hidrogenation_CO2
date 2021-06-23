@@ -203,7 +203,7 @@ def calculate_k(F_dict, comp_dict, T, P, reactor_setup, m_in, react_dict, initia
 
     return [dP, dT, dF['CO2'], dF['H2'], dF['MeOH'], dF['H2O'], dF['H2O'], dF['CO'], dF['CH4']]
 
-def runge_kutta(initial_conditions, F_dict, m_rate, reactor_setup, comp_dict, react_info, N = 1000, single_model = True):
+def runge_kutta(initial_conditions, F_dict, m_rate, reactor_setup, comp_dict, react_info, N = 100, single_model = True):
 
     """
     executes the integration method of 4th order Runge Kutta
@@ -327,7 +327,7 @@ def runge_kutta(initial_conditions, F_dict, m_rate, reactor_setup, comp_dict, re
         k4CH4 = k_list[7]
 
         # update functions
-        T += ((h/6)*(k1T + (2*k2T) + (2*k3T) + k4T))
+        T += dw_to_dl*((h/6)*(k1T + (2*k2T) + (2*k3T) + k4T))
         P += ((h/6)*(k1P + (2*k2P) + (2*k3P) + k4P))
         F_dict['CO2'] += dw_to_dl*((h/6)*(k1CO2 + (2*k2CO2) + (2*k3CO2) + k4CO2))
         F_dict['H2'] += dw_to_dl*((h/6)*(k1H2 + (2*k2H2) + (2*k3H2) + k4H2))
@@ -353,3 +353,46 @@ def reactor_dimensions(reactor_setup):
     # calculate reactor dimensions
     reactor_setup['D'] = ((4*V)/(m.pi*k))**(1/3) # reactor diameter
     reactor_setup['L'] = k*reactor_setup['D']
+
+def simulate_reactor(cond_dictionary, comp_dict, react_info, single_model = True):
+
+    """
+    receives the inputs necessary to simulate the reactor and run the simulations
+    input: conditions list, dictionary containing chemical properties,
+           dictionary containing kinetic information, flag indicating which model is to be used
+    output: profile dataframe 
+    """
+
+    # extract parameters from dictionary
+    T0 = cond_dictionary['T']
+    P0 = cond_dictionary['P']
+    h2toco2 = cond_dictionary['ratio_H2_CO2']
+    WHSV = cond_dictionary['spatial_velocity']
+    V = cond_dictionary['reactor_total_volume']
+    LtoD = cond_dictionary['reactor_LtoD_ratio']
+    Ntubes = cond_dictionary['number_of_tubes']
+
+    # create reactor setup dictionary
+    reactor_setup = {
+        'volume': V,
+        'LtoD': LtoD,
+        'L': 0,
+        'D': 0,
+        'N_tubes': Ntubes
+    }
+
+    # prepare data to simulation
+    initial_cond, F_dict = prepare_data(T0, P0, WHSV, reactor_setup, h2toco2, comp_dict)
+
+    # calculate reactor dimensions
+    reactor_dimensions(reactor_setup)
+
+    # calculate mass flow rate per tube
+    y = [F_dict[comp]/initial_cond[3] for comp in F_dict]
+    rho0 = cp.mixture_density(comp_dict['comp_list'], y, T0+273.15, P0, comp_dict)
+    m_in = rho0*initial_cond[0]
+
+    # run simulation
+    results = runge_kutta(initial_cond, F_dict, m_in, reactor_setup, comp_dict, react_info, single_model = single_model)
+
+    return results    
